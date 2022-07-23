@@ -4,8 +4,8 @@ class Magic_validation
 {
     var $rules_text = "required|trim";
     var $rules_email = "required|trim|valid_email|is_unique[user.email]',['is_unique' => 'Email sudah pernah digunakan";
-    var $rules_password = "min_length[3]|matches[password_konfirmasi]";
-    var $rules_password_konfirmasi = "required|trim', 'matches[password]";
+    var $rules_password = "trim|required|min_length[3]";
+    var $rules_password_konfirmasi = "trim|required|matches[password]";
     var $data = [];
 
     function set($data_raw)
@@ -20,10 +20,10 @@ class Magic_validation
                 array_push($dump, $this->rules_email);                
             }else if ($label == 'Password') {
                 array_push($dump, $this->rules_password);                                
-            }else if ($label == 'Password Konfirmasi') {
-                array_push($dump, $this->rules_password_konfirmasi);                                
+            }else if ($label == 'Password_konfirmasi') {
+                array_push($dump, $this->rules_password_konfirmasi);
             }else{
-                array_push($dump, $this->rules_text);                                
+                array_push($dump, $this->rules_text);
             }
 
             array_push($this->data, $dump);
@@ -36,7 +36,7 @@ class Magic_validation
         $this->CI->load->library('form_validation');
         foreach ($this->data as $key) {
             $this->CI->form_validation->set_rules($key[0], $key[1], $key[2]);
-        }
+        }        
         return $this->CI->form_validation->run();
     }    
 }

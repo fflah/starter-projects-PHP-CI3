@@ -3,15 +3,15 @@
 class Magic_table
 {
     var $data = [];
-    public function set($table, $field_show, $field_filter, $payload_join=null)
+    public function set($table, $where, $field_show, $field_filter, $payload_join=null)
     {
         $this->CI = &get_instance();
-        $this->CI->load->model('TableTalk');     
-        if ($payload_join != null) {            
-            $this->CI->TableTalk->set_join($table, $field_show, $field_filter, $payload_join);
-            $this->data = $this->CI->TableTalk->get_datatables(); 
+        $this->CI->load->model('TableTalk');
+        if ($payload_join != null) {
+            $this->CI->TableTalk->set_join($table, $where, $field_show, $field_filter, $payload_join);
+            $this->data = $this->CI->TableTalk->get_datatables();
         }else{
-            $this->CI->TableTalk->set($table, $field_show, $field_filter);
+            $this->CI->TableTalk->set($table, $where, $field_show, $field_filter);
             $this->data = $this->CI->TableTalk->get_datatables(); 
         }
     }

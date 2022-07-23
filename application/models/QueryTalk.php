@@ -26,9 +26,8 @@ class QueryTalk extends CI_Model
 
         if ($file_upload != null) {
             foreach ($file_upload as $key => $value) {
-                $config['upload_path']          = $value['path'];
-                // $config['allowed_types']        = 'pdf|png|jpg|jpeg';
-                $config['allowed_types']        = 'pdf';
+                $config['upload_path']          = $value['path'];                
+                $config['allowed_types']        = $value['allowed_types'];
                 $config['max_size']             = 2000;
                 $config['encrypt_name']			= TRUE;
                 $this->load->library('upload', $config);
@@ -45,7 +44,7 @@ class QueryTalk extends CI_Model
         return $this->db->insert($table, $data);
     }
 
-    public function update($where, $data, $table,  $except=null, $excess=null, $file_upload=null)
+    public function update($table, $where, $data, $except=null, $excess=null, $file_upload=null)
     {
         if ($except != null && $excess == null) {
             foreach ($except as $key => $value) {
@@ -85,15 +84,10 @@ class QueryTalk extends CI_Model
 		return $this->db->update($table, $data);
     }
 
-    public function delete($where, $table)
+    public function delete($table, $where)
     {
         $this->db->where($where);
 		return $this->db->delete($table);
-    }
-
-    public function select($table)
-    {
-        return $this->db->get($table);
     }
 
     private function set_join($table, $filter, $payload_join)
@@ -109,33 +103,41 @@ class QueryTalk extends CI_Model
         foreach ($this->join as $key) {
             $spells_table = explode(".",$key)[0];
             $this->db->join($spells_table, $key);
-        }    
-        $this->db->where($filter);    
+        }
+        if ($filter != null) {
+            $this->db->where($filter);    
+        }
         
         return $this->db->get();
     }
-    
-    public function select_filter($table, $filter, $setjoin=null)
+
+       
+    public function select($table, $filter=null, $setjoin=null, $select_column=null)
     {
         $query = null;
         if ($setjoin != null) {
             $query = $this->set_join($table, $filter, $setjoin);
         }else{
-            $this->db->select('*');
-            $this->db->from($table);
-            $this->db->where($filter);
-            $query = $this->db->get();
+            if ($filter == null) {
+                if ($select_column!=null) {                    
+                    $this->db->select($select_column);
+                }else{
+                    $this->db->select('*');
+                }
+                $this->db->from($table);
+                $query = $this->db->get();
+            }else{
+                if ($select_column!=null) {                    
+                    $this->db->select($select_column);
+                }else{
+                    $this->db->select('*');
+                }
+                $this->db->from($table);
+                $this->db->where($filter);
+                $query = $this->db->get();
+            }
         }      
         
-        return $query;
-    }
-
-    public function select_join()
-    {
-        $this->db->select('*');
-        $this->db->from('blogs');
-        $this->db->join('comments', 'comments.id = blogs.id');
-        $query = $this->db->get();
         return $query;
     }
 

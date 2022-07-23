@@ -9,6 +9,7 @@ class TableTalk extends CI_Model{
     var $join = [];
     var $table_dump = '';
     var $is_join ='';
+    var $where = null;
 	
 	public function __construct()
     {
@@ -16,15 +17,16 @@ class TableTalk extends CI_Model{
         $this->load->database();
     }
 
-    public function set($table, $column_show, $column_search)
+    public function set($table, $where, $column_show, $column_search)
     {
         $this->table = $table;
         $this->column_show = $column_show;
         $this->column_search = $column_search;
         $this->column_order = $column_show;
+        $this->where = $where;
     }
 
-    public function set_join($table, $column_show, $column_search, $payload_join)
+    public function set_join($table, $where, $column_show, $column_search, $payload_join)
     {
         foreach ($payload_join as $index => $item) {    
             if($index == 0){
@@ -38,21 +40,28 @@ class TableTalk extends CI_Model{
         $this->table = $table;
         $this->column_show = $column_show;
         $this->column_search = $column_search;
-        $this->column_order = $column_show;
+        $this->column_order = $column_search;
+        $this->where = $where;
     }
     
     private function _get_datatables_query()
     {
         if ($this->is_join == true){
-            $this->db->select('*');
-            $this->db->from($this->table_dump);
+            $this->db->select($this->column_show);
+            $this->db->from($this->table);
             foreach ($this->join as $key) {
                 $spells_table = explode(".",$key)[0];
                 $this->db->join($spells_table, $key);
             }
+            if ($this->where != null) {
+                $this->db->where($this->where);
+            }
         }else{
             $this->db->select($this->column_show);
             $this->db->from($this->table);
+            if ($this->where != null) {
+                $this->db->where($this->where);
+            }
         }
         $i = 0;
         foreach ($this->column_search as $item) // looping awal
@@ -76,7 +85,7 @@ class TableTalk extends CI_Model{
         }
          
         if(isset($_POST['order'])) 
-        {
+        {            
             $this->db->order_by($this->column_order[$_POST['order']['0']['column']], $_POST['order']['0']['dir']);
         } 
         else if(isset($this->order))
